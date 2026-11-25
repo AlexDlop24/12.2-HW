@@ -1,26 +1,45 @@
-import random
+def Springs(K1, K2, Ftotal, config):
+    # Check that K1, K2, and Ftotal are positive numbers
+    if K1 <= 0 or K2 <= 0 or Ftotal <= 0:
+        print("Error: K1, K2, and Ftotal must be positive numbers.")
+        return None
 
-# Requirement 2 & 3: Input validation for N > 0
-while True:
-    N = int(input("Enter the number of times (N) to roll two dice: "))
-    if N > 0:
-        break
-    print("Error: Please enter a positive integer greater than zero.")
+    # Normalize the configuration string to lowercase to avoid case-sensitivity issues
+    config = config.lower()
 
-# Requirement 4: Roll two dice N times and store sums in a list
-dice_sums = []
-for _ in range(N):
-    dice1 = random.randint(1, 6)
-    dice2 = random.randint(1, 6)
-    dice_sums.append(dice1 + dice2)
+    if config == "series":
+        # Equivalent spring constant for series: 1/Keq = 1/K1 + 1/K2
+        Keq = 1 / ((1 / K1) + (1 / K2))
+        
+        # In series, force is equal across both springs
+        F1 = Ftotal
+        F2 = Ftotal
+        
+        # Calculate individual displacements using Hooke's Law (x = F / K)
+        x1 = F1 / K1
+        x2 = F2 / K2
+        
+        # Total displacement is the sum of individual displacements
+        xtotal = x1 + x2
+        
+        return Keq, F1, F2, x1, x2, xtotal
 
-# Requirement 5: Second loop to count number of 7s using indexing
-count_sevens = 0
-for i in range(len(dice_sums)):
-    if dice_sums[i] == 7:
-        count_sevens += 1
+    elif config == "parallel":
+        # Equivalent spring constant for parallel: Keq = K1 + K2
+        Keq = K1 + K2
+        
+        # In parallel, displacement is equal across both springs
+        xtotal = Ftotal / Keq
+        x1 = xtotal
+        x2 = xtotal
+        
+        # Calculate individual forces using Hooke's Law (F = K * x)
+        F1 = K1 * x1
+        F2 = K2 * x2
+        
+        return Keq, F1, F2, x1, x2, xtotal
 
-# Requirement 6: Output list and count
-print("\n--- Results ---")
-print("List of sums rolled:", dice_sums)
-print("Number of times the sum was 7:", count_sevens)
+    else:
+        # Handle invalid configuration strings
+        print("Error: Configuration must be 'series' or 'parallel'.")
+        return None 
